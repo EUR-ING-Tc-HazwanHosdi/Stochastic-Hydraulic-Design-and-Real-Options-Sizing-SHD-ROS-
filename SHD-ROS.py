@@ -35,14 +35,14 @@ with st.sidebar.expander("1. Inflow & Jump-Diffusion Settings", expanded=True):
     lambda_jump = st.slider("Jump Intensity (λ - Shocks/Year)", min_value=0.0, max_value=0.5, value=0.1, step=0.05)
     jump_mean = st.slider("Mean Shock Magnitude (J_Q)", min_value=0.05, max_value=0.50, value=0.20, step=0.05)
 
-with st.sidebar.expander("2. Economic & Cost Parameters", false):
+with st.sidebar.expander("2. Economic & Cost Parameters", False):
     r = st.slider("Discount Rate (r)", min_value=0.02, max_value=0.12, value=0.06, step=0.005)
     capex_rigid = st.number_input("Rigid Plant CapEx ($M)", value=45.0, step=2.0)
     capex_modular = st.number_input("Modular Train CapEx ($M)", value=15.0, step=1.0)
     unit_opex = st.number_input("Base Energy OpEx ($M/MLD/year)", value=0.35, step=0.05)
     penalty_cost = st.number_input("Non-Compliance Penalty ($M/year overflow)", value=5.0, step=0.5)
 
-with st.sidebar.expander("3. Real Options & Triggers", false):
+with st.sidebar.expander("3. Real Options & Triggers", False):
     q_crit_ratio = st.slider("Critical Expansion Trigger Q_crit (% of Capacity)", min_value=0.70, max_value=0.95, value=0.85, step=0.05)
     buffer_window = st.slider("Buffer Window τ_buffer (Years)", min_value=1, max_value=5, value=2, step=1)
     land_option_cost = st.number_input("Land Option Pre-purchase Cost ($M)", value=1.5, step=0.2)
