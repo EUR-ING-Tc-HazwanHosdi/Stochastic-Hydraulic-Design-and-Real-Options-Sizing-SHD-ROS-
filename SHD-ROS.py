@@ -18,6 +18,7 @@ st.markdown("""
     .main-header { font-size: 2.2rem; font-weight: 700; color: #0E4C92; margin-bottom: 0.1rem; }
     .sub-header { font-size: 1.1rem; font-weight: 400; color: #555555; margin-bottom: 2rem; }
     .metric-card { background-color: #f8f9fa; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #0E4C92; }
+    .benchmark-box { background-color: #e8f4f8; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid #1f77b4; margin-bottom: 1.5rem; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -129,7 +130,13 @@ def evaluate_strategies(flow_paths, capex_rigid, capex_modular, unit_opex, penal
 rigid_npvs, shd_ros_npvs = evaluate_strategies(flow_paths, capex_rigid, capex_modular, unit_opex, penalty_cost, r, q_crit_ratio, land_option_cost)
 
 # --- Dashboard Layout ---
-tab1, tab2, tab3, tab4 = st.tabs(["📈 Inflow & Jump Simulation", "💰 ENPV & Cost Risk Analysis", "🏗️ Real Options Triggers", "📋 Executive Summary Report"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📈 Inflow & Jump Simulation", 
+    "💰 ENPV & Cost Risk Analysis", 
+    "🏗️ Real Options Triggers", 
+    "📋 Executive Summary Report",
+    "📖 Parameter Legend & Guide"
+])
 
 with tab1:
     st.subheader("Stochastic Inflow Trajectories (Jump-Diffusion Model)")
@@ -180,17 +187,72 @@ with tab3:
 
 with tab4:
     st.subheader("Executive Decision Support & Recommendations")
-    st.markdown("### Summary of Optimization Results")
     
+    st.markdown("""
+    <div class="benchmark-box">
+    <h4>🇲🇾 Malaysian Urban Development & Sewerage Benchmarks Notes</h4>
+    <ul>
+        <li><b>Population Equivalent (PE) Escalation:</b> Aligned with Malaysian Sewerage Industry Guidelines (MSIG) and local municipal structure plans, urban growth rates ($\mu_Q$) typically range between <b>2.5% to 4.5% annually</b> for rapidly expanding municipal corridors.</li>
+        <li><b>Jump-Diffusion Shocks ($\lambda, J_Q$):</b> Reflects sudden commercial clustering, large-scale industrial park approvals, or high-density residential land conversions characteristic of Malaysian urban centers.</li>
+    </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### Summary of Optimization Results")
     summary_df = pd.DataFrame({
         "Metric": ["Initial CapEx Exposure", "Mean Lifecycle ENPV", "Asset Utilization Efficiency", "Regulatory Compliance Risk"],
         "Traditional Rigid Plan": [f"RM {capex_rigid}M (Front-loaded)", f"RM {np.mean(rigid_npvs):.2f}M", "Low (Initial Years)", "Low (Oversized)"],
         "SHD-ROS Framework": [f"RM {capex_modular + land_option_cost}M (Staged)", f"RM {np.mean(shd_ros_npvs):.2f}M", "Optimized (High)", "Controlled via Triggers"]
     })
-    
     st.table(summary_df)
     
     st.info("💡 **Key Industry Takeaway**: Implementing the SHD-ROS framework reduces upfront capital exposure by deferring secondary civil works until stochastic jump-diffusion thresholds ($\lambda, J_Q$) are breached, successfully balancing lifecycle energy OpEx and regulatory penalty limits.")
+
+with tab5:
+    st.subheader("📖 Sidebar Parameter Legend & Selection Guide")
+    st.markdown("Use this reference guide to understand the engineering rationale, economic basis, and Malaysian regulatory benchmarks (SPAN / PLANMalaysia) for every control slider in the sidebar.")
+    
+    legend_table_data = {
+        "Sidebar Parameter Variable": [
+            "Initial Flow ($Q_0$)", 
+            "Planning Horizon (`years`)", 
+            "Deterministic Growth Rate ($\mu_Q$)", 
+            "Inflow Volatility ($\sigma_Q$)", 
+            "Jump Intensity ($\lambda$)", 
+            "Mean Shock Magnitude ($J_Q$)",
+            "Discount Rate ($r$)", 
+            "Rigid Plant CapEx (`capex_rigid`)", 
+            "Modular Train CapEx (`capex_modular`)", 
+            "Base Energy OpEx (`unit_opex`)", 
+            "Non-Compliance Penalty (`penalty_cost`)",
+            "Critical Trigger Ratio ($Q_{crit}$)", 
+            "Buffer Window ($\tau_{buffer}$)", 
+            "Land Option Cost (`land_option_cost')"
+        ],
+        "Default Setting": [
+            "20.0 MLD", "30 Years", "3.0% / yr", "8.0% / yr", "0.1 / yr", "20%",
+            "6.0% / yr", "RM 45.0M", "RM 15.0M", "RM 0.35M/MLD", "RM 5.0M/yr",
+            "85%", "2 Years", "RM 1.5M"
+        ],
+        "Representation & Engineering Determination Rationale": [
+            "Starting average daily wastewater flow calculated using standard Malaysian generation rate of 210 L/capita/day or existing inlet meter data.",
+            "Aligned with local authority structural planning horizons (*Rancangan Struktur* framework periods spanning 20–30 years).",
+            "Benchmarked against PLANMalaysia urban growth corridors (typically 2.5% to 4.5% annually for developing sectors).",
+            "Reflects historical seasonal weather variations, monsoonal infiltration, and customer water use fluctuations.",
+            "Poisson process frequency parameter representing sudden commercial clustering or industrial park approvals.",
+            "Proportional jump in influent loading when a major development or zoning approval ties into the network.",
+            "Standard social discount rate and WACC for long-term municipal public-private partnerships (PPP).",
+            "Heavy, front-loaded capital expenditure for an oversized, monolithic STP built upfront for ultimate peak load.",
+            "Phased capital cost required for constructing a single modular biological treatment train as demand scales.",
+            "Recurring annual electrical energy (aeration blowers, pumps) and routine O&M expenses per MLD treated.",
+            "Environmental penalty and DOE/SPAN infractions incurred if hydraulic overloading results in bypass.",
+            "Operational threshold ratio signaling optimal expansion timing before reaching facility failure.",
+            "Mandatory engineering lag time for detailed design, environmental impact assessment (EIA), and construction.",
+            "Initial option premium paid to secure land reserves or zoning buffers per SPAN regionalization guidelines."
+        ]
+    }
+    
+    st.table(pd.DataFrame(legend_table_data))
 
 # --- Footer ---
 st.markdown("---")
