@@ -37,15 +37,15 @@ with st.sidebar.expander("1. Inflow & Jump-Diffusion Settings", expanded=True):
 
 with st.sidebar.expander("2. Economic & Cost Parameters", False):
     r = st.slider("Discount Rate (r)", min_value=0.02, max_value=0.12, value=0.06, step=0.005)
-    capex_rigid = st.number_input("Rigid Plant CapEx ($M)", value=45.0, step=2.0)
-    capex_modular = st.number_input("Modular Train CapEx ($M)", value=15.0, step=1.0)
-    unit_opex = st.number_input("Base Energy OpEx ($M/MLD/year)", value=0.35, step=0.05)
-    penalty_cost = st.number_input("Non-Compliance Penalty ($M/year overflow)", value=5.0, step=0.5)
+    capex_rigid = st.number_input("Rigid Plant CapEx (RM Million)", value=45.0, step=2.0)
+    capex_modular = st.number_input("Modular Train CapEx (RM Million)", value=15.0, step=1.0)
+    unit_opex = st.number_input("Base Energy OpEx (RM Million/MLD/year)", value=0.35, step=0.05)
+    penalty_cost = st.number_input("Non-Compliance Penalty (RM Million/year overflow)", value=5.0, step=0.5)
 
 with st.sidebar.expander("3. Real Options & Triggers", False):
     q_crit_ratio = st.slider("Critical Expansion Trigger Q_crit (% of Capacity)", min_value=0.70, max_value=0.95, value=0.85, step=0.05)
     buffer_window = st.slider("Buffer Window τ_buffer (Years)", min_value=1, max_value=5, value=2, step=1)
-    land_option_cost = st.number_input("Land Option Pre-purchase Cost ($M)", value=1.5, step=0.2)
+    land_option_cost = st.number_input("Land Option Pre-purchase Cost (RM Million)", value=1.5, step=0.2)
 
 num_simulations = st.sidebar.slider("Monte Carlo Scenarios", min_value=100, max_value=2000, value=500, step=100)
 
@@ -153,15 +153,15 @@ with tab2:
     st.markdown("Comparing the **Traditional Rigid Strategy** (Over-Sizing Trap / High Initial CapEx) against the **SHD-ROS Flexible Strategy** (Phased Modular Staging).")
     
     col1, col2, col3 = st.columns(3)
-    col1.metric("Mean Rigid ENPV", f"${np.mean(rigid_npvs):.2f}M", delta=f"High CapEx Exposure")
-    col2.metric("Mean SHD-ROS ENPV", f"${np.mean(shd_ros_npvs):.2f}M", delta=f"-{(np.mean(rigid_npvs)-np.mean(shd_ros_npvs))/np.mean(rigid_npvs)*100:.1f}% Savings", delta_color="inverse")
-    col3.metric("Value of Flexibility (VoF)", f"${np.mean(rigid_npvs) - np.mean(shd_ros_npvs):.2f}M", delta="Net Lifecycle Benefit")
+    col1.metric("Mean Rigid ENPV", f"RM {np.mean(rigid_npvs):.2f}M", delta="High CapEx Exposure")
+    col2.metric("Mean SHD-ROS ENPV", f"RM {np.mean(shd_ros_npvs):.2f}M", delta=f"-{(np.mean(rigid_npvs)-np.mean(shd_ros_npvs))/np.mean(rigid_npvs)*100:.1f}% Savings", delta_color="inverse")
+    col3.metric("Value of Flexibility (VoF)", f"RM {np.mean(rigid_npvs) - np.mean(shd_ros_npvs):.2f}M", delta="Net Lifecycle Benefit")
     
     # Distribution Plot
     fig_hist = go.Figure()
     fig_hist.add_trace(go.Histogram(x=rigid_npvs, name='Traditional Rigid Design', marker_color='#E63946', opacity=0.7))
     fig_hist.add_trace(go.Histogram(x=shd_ros_npvs, name='SHD-ROS Flexible Design', marker_color='#2A9D8F', opacity=0.7))
-    fig_hist.update_layout(barmode='overlay', xaxis_title="Lifecycle ENPV ($M)", yaxis_title="Simulation Frequency", template="plotly_white", height=420)
+    fig_hist.update_layout(barmode='overlay', xaxis_title="Lifecycle ENPV (RM Million)", yaxis_title="Simulation Frequency", template="plotly_white", height=420)
     st.plotly_chart(fig_hist, use_container_width=True)
 
 with tab3:
@@ -184,8 +184,8 @@ with tab4:
     
     summary_df = pd.DataFrame({
         "Metric": ["Initial CapEx Exposure", "Mean Lifecycle ENPV", "Asset Utilization Efficiency", "Regulatory Compliance Risk"],
-        "Traditional Rigid Plan": [f"${capex_rigid}M (Front-loaded)", f"${np.mean(rigid_npvs):.2f}M", "Low (Initial Years)", "Low (Oversized)"],
-        "SHD-ROS Framework": [f"${capex_modular + land_option_cost}M (Staged)", f"${np.mean(shd_ros_npvs):.2f}M", "Optimized (High)", "Controlled via Triggers"]
+        "Traditional Rigid Plan": [f"RM {capex_rigid}M (Front-loaded)", f"RM {np.mean(rigid_npvs):.2f}M", "Low (Initial Years)", "Low (Oversized)"],
+        "SHD-ROS Framework": [f"RM {capex_modular + land_option_cost}M (Staged)", f"RM {np.mean(shd_ros_npvs):.2f}M", "Optimized (High)", "Controlled via Triggers"]
     })
     
     st.table(summary_df)
